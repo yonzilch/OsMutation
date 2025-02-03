@@ -1,5 +1,5 @@
 #!/bin/bash
-# Reinstall Any OpenVZ/LXC VPS to Debian/CentOS/Alpine
+# Reinstall Any OpenVZ/LXC VPS to Debian/NixOS/Alpine
 # Author: Lloyd@nodeseek.com
 # WARNING: A fresh system will be installed and all old data will be wiped.
 # License: GPLv3; Partly based on https://gist.github.com/trimsj/c1fefd650b5f49ceb8f3efc1b6a1404d
@@ -7,15 +7,15 @@
 function print_help(){
     echo -ne "\e[1;32m"
     cat <<- EOF
-                                                                                     
+
 		 ██████╗ ███████╗███╗   ███╗██╗   ██╗████████╗ █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
 		██╔═══██╗██╔════╝████╗ ████║██║   ██║╚══██╔══╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
 		██║   ██║███████╗██╔████╔██║██║   ██║   ██║   ███████║   ██║   ██║██║   ██║██╔██╗ ██║
 		██║   ██║╚════██║██║╚██╔╝██║██║   ██║   ██║   ██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
 		╚██████╔╝███████║██║ ╚═╝ ██║╚██████╔╝   ██║   ██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
 		 ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-                                                                                     
-		Reinstall Any OpenVZ/LXC VPS to Debian/CentOS/Alpine;
+
+		Reinstall Any OpenVZ/LXC VPS to Debian/NixOS/Alpine;
 		[warning] A fresh system will be installed and all old data will be wiped!
 		Author: Lloyd@nodeseek.com
 	EOF
@@ -56,16 +56,16 @@ function install(){
 }
 
 function read_lxc_template(){
-    last_lxc_version=$(curl -Ls "https://api.github.com/repos/LloydAsp/OsMutation/releases/latest" | grep "LXC" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    last_lxc_version=$(curl -Ls "https://api.github.com/repos/yonzilch/OsMutation/releases/latest" | grep "LXC" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     if [[ -n $last_lxc_version ]]; then
-        image_list=$(curl -Ls "https://api.github.com/repos/LloydAsp/OsMutation/releases/latest" | grep "LXC" | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
+        image_list=$(curl -Ls "https://api.github.com/repos/yonzilch/OsMutation/releases/latest" | grep "LXC" | grep '"browser_download_url":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [ "$(uname -m)" == "aarch64" ] ; then
             image_list="$(echo "$image_list" | grep arm64)"
         else
             image_list="$(echo "$image_list" | grep -v arm64)"
         fi
 
-        os_list=$(echo "$image_list" | sed "s/https\:\/\/github.com\/LloydAsp\/OsMutation\/releases\/download\/${last_lxc_version}\///g" | sed "s/\.tar\.gz//g")
+        os_list=$(echo "$image_list" | sed "s/https\:\/\/github.com\/yonzilch\/OsMutation\/releases\/download\/${last_lxc_version}\///g" | sed "s/\.tar\.gz//g")
         echo "$os_list" | nl
 
         while [ -z "${os_index##*[!0-9]*}" ]; do
@@ -78,7 +78,7 @@ function read_lxc_template(){
         server=http://images.linuxcontainers.org
         path=$(wget -qO- ${server}/meta/1.0/index-system | \
             grep -v edge | grep default | \
-            awk '-F;' '(( $1=="debian" || $1=="centos" || $1=="alpine") && ( $3=="amd64" || $3=="i386")) {print $NF}')
+            awk '-F;' '(( $1=="debian" || $1=="nixos" || $1=="alpine") && ( $3=="amd64" || $3=="i386")) {print $NF}')
 
         if [ "$(uname -m)" == "aarch64" ] ; then
             path="$(echo $path | grep arm64)"
@@ -102,19 +102,19 @@ function read_lxc_template(){
 
 function read_openvz_template(){
     releasetag="v0.0.1"
-    os_list=$(wget -qO- "https://github.com/LloydAsp/OsMutation/releases/expanded_assets/v0.0.1" | \
+    os_list=$(wget -qO- "https://github.com/yonzilch/OsMutation/releases/expanded_assets/v0.0.1" | \
         sed -nE '/tar.gz/s/.*>([^<>]+)\.tar\.gz.*/\1/p' | \
-        grep -E "(debian)|(centos)|(alpine)" )
+        grep -E "(debian)|(nixos)|(alpine)" )
     echo "$os_list" | nl
 
-    while [ -z "${os_index##*[!0-9]*}" ]; 
+    while [ -z "${os_index##*[!0-9]*}" ];
     do
         echo -n "please select os (input number):"
         read os_index < /dev/tty
     done
 
     os_selected=$( echo "$os_list" | head -n $os_index | tail -n 1)
-    download_link="https://github.com/LloydAsp/OsMutation/releases/download/${releasetag}/${os_selected}.tar.gz"
+    download_link="https://github.com/yonzilch/OsMutation/releases/download/${releasetag}/${os_selected}.tar.gz"
 }
 
 function download_rootfs(){
@@ -174,8 +174,8 @@ function migrate_configuration(){
 
 function install_requirement(){
     # prevent no access on ipv6 only vps
-    ping -c 3 api.github.com || echo "nameserver 2a00:1098:2c::1"  >  /etc/resolv.conf 
-    
+    ping -c 3 api.github.com || echo "nameserver 2a00:1098:2c::1"  >  /etc/resolv.conf
+
     if [ -n "$(command -v apk)" ] ; then
         install curl sed gawk wget gzip xz tar virt-what
     else
@@ -218,12 +218,12 @@ function post_install(){
             install ifupdown
             systemctl disable systemd-networkd.service
         fi
-    elif grep -qi centos /etc/issue; then
+    elif grep -qi nixos /etc/issue; then
         install openssh
         if [ "$cttype" == 'lxc' ] ; then
             install ifupdown
             systemctl disable systemd-networkd.service
-            # To-Do: Network service of CentOS need modify
+            # To-Do: Network service of NixOS need modify
         fi
     fi
     echo PermitRootLogin yes >> /etc/ssh/sshd_config
@@ -250,7 +250,7 @@ function main(){
     elif [ "$cttype" == 'lxc' ] ; then
         read_lxc_template
     elif [ "$cttype" == 'kvm' ] ; then
-        curl -qo OsMutationKvm.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutationKvm.sh
+        curl -qo OsMutationKvm.sh https://raw.githubusercontent.com/yonzilch/OsMutation/main/OsMutationKvm.sh
         chmod u+x OsMutationKvm.sh
         ./OsMutationKvm.sh
         exit 0
