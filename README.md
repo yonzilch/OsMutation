@@ -1,5 +1,5 @@
 # OsMutation
-Reinstall Any OpenVZ/LXC VPS to Debian/CentOS/Alpine
+Reinstall Any OpenVZ/LXC VPS to Debian/NixOS/Alpine
 
 ## Features
 - Support both OpenVZ 7 and LXC
@@ -7,16 +7,16 @@ Reinstall Any OpenVZ/LXC VPS to Debian/CentOS/Alpine
 
 ## Usage
 ```
-wget -qO OsMutation.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutation.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
+wget -qO OsMutation.sh https://raw.githubusercontent.com/yonzilch/OsMutation/main/OsMutation.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
 ```
 or
 ```
-curl -so OsMutation.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutation.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
+curl -so OsMutation.sh https://raw.githubusercontent.com/yonzilch/OsMutation/main/OsMutation.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
 ```
 for vps whose disk is small (less than 1GiB, experimental support)
 
 ```
-wget -qO OsMutation.sh https://raw.githubusercontent.com/LloydAsp/OsMutation/main/OsMutationTight.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
+wget -qO OsMutation.sh https://raw.githubusercontent.com/yonzilch/OsMutation/main/OsMutationTight.sh && chmod u+x OsMutation.sh && ./OsMutation.sh
 ```
 
 [![asciicast](https://asciinema.org/a/582009.svg)](https://asciinema.org/a/582009)
@@ -36,10 +36,3 @@ LXC templates are directly downloaded from http://images.linuxcontainers.org, Op
 
 ## Thanks To
 - Inspired by https://gist.github.com/trimsj/c1fefd650b5f49ceb8f3efc1b6a1404d
-
-## To Do
-- Support non-interactive mode by accepting arguments
-- Support customed template source
-- Support more operating system 
-- Fix networking bug of CentOS under LXC
-- Auto configure ipv6 network
